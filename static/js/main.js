@@ -144,17 +144,24 @@ document.addEventListener('DOMContentLoaded', () => {
   function initSocket() {
     socket = io();
     
-    socket.emit('register', currentUser._id);
+    socket.on('connect', () => {
+      // Vital for reconnects if server restarts
+      socket.emit('register', currentUser._id);
+    });
     
     socket.on('onlineUsers', (users) => {
       onlineUsersMap = users;
-      renderUsersList(); // re-render to update dot indicators
+      renderUsersList(); 
     });
     
     socket.on('receiveMessage', (message) => {
-      if (selectedUser && message.sender === selectedUser._id) {
-        appendMessage(message.text, 'received');
+      // Must cast to string just in case mongoose object ID is serialized differently
+      if (selectedUser && String(message.sender) === String(selectedUser._id)) {
+        appendMessage(message.text, 'received', new Date(message.createdAt || Date.now()));
         scrollToBottom();
+      } else {
+        // Refresh users list in case of new messages from others
+        fetchUsers();
       }
     });
 
@@ -162,14 +169,14 @@ document.addEventListener('DOMContentLoaded', () => {
     socket.on('callUser', (data) => {
       console.log('Incoming call', data);
       incomingCallData = data;
-      callerName.textContent = `Incoming call from ${data.name}`;
-      incomingCallModal.style.display = 'block';
+      callerName.textContent = data.name;
+      incomingCallModal.style.display = 'flex'; // Flex to center the WhatsApp modal
     });
 
     socket.on('callAccepted', (signal) => {
       console.log('Call accepted', signal);
       callStatus.textContent = "Connected";
-      peer.signal(signal);
+      if (peer) peer.signal(signal);
     });
 
     socket.on('callEnded', () => {
@@ -365,6 +372,10 @@ document.addEventListener('DOMContentLoaded', () => {
       
       peer.on('stream', stream => {
         remoteVideo.srcObject = stream;
+        // Make sure remote video is visible if they are sending video
+        if (stream.getVideoTracks().length > 0) {
+          remoteVideo.style.display = 'block';
+        }
       });
       
       peer.on('connect', () => {
