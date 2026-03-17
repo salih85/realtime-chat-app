@@ -3,13 +3,13 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Real-Time NextGen Chat</title>
+  <title>WhatsApp Web</title>
   <link rel="stylesheet" href="/css/style.css">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
-  <div id="auth-container" class="glass-panel auth-wrapper">
-    <h1>Welcome to NextGen Chat</h1>
+  <!-- AUTHENTICATION VIEW -->
+  <div id="auth-container" class="auth-wrapper">
+    <h1>WhatsApp Web</h1>
     <div class="auth-tabs">
       <button id="tab-login" class="active">Login</button>
       <button id="tab-register">Register</button>
@@ -30,59 +30,85 @@
     <div id="auth-error" class="error-msg"></div>
   </div>
 
+  <!-- MAIN APP VIEW -->
   <div id="app-container" style="display: none;" class="layout-container">
-    <aside class="sidebar glass-panel">
+    
+    <aside class="sidebar">
       <div class="user-profile">
-        <h2 id="current-username">User</h2>
-        <button id="logout-btn" class="btn-secondary">Logout</button>
+        <div class="profile-info">
+          <div class="profile-avatar">👤</div>
+          <h2 id="current-username">User</h2>
+        </div>
+        <div>
+          <button id="logout-btn" class="icon-btn" title="Logout">⚙️</button>
+        </div>
       </div>
-      <h3>Contacts</h3>
+      
+      <div class="search-bar">
+        <input type="text" placeholder="Search or start new chat">
+      </div>
+      
       <ul id="users-list"></ul>
     </aside>
 
-    <main class="chat-area glass-panel">
+    <main class="chat-area">
       <header class="chat-header">
-        <h2 id="chatting-with">Select a user to start chatting</h2>
+        <div class="chat-header-info" id="chat-header-info" style="visibility: hidden;">
+          <div class="profile-avatar">👤</div>
+          <div>
+            <h2 id="chatting-with">Select a user</h2>
+            <div id="chatting-status" class="status-indicator"></div>
+          </div>
+        </div>
+        
         <div class="call-actions" id="call-actions" style="display: none;">
-          <button id="audio-call-btn" class="btn-icon" title="Audio Call">📞</button>
-          <button id="video-call-btn" class="btn-icon" title="Video Call">🎥</button>
+          <button id="video-call-btn" class="icon-btn" title="Video Call">🎥</button>
+          <button id="audio-call-btn" class="icon-btn" title="Voice Call">📞</button>
         </div>
       </header>
       
-      <div class="messages", id="messages-container">
+      <div class="messages" id="messages-container">
         <!-- Messages will be injected here -->
       </div>
       
       <form id="message-form" style="display: none;">
-        <input type="text" id="message-input" placeholder="Type a message..." autocomplete="off" required>
-        <button type="submit" class="btn-primary">Send</button>
+        <button type="button" class="icon-btn">😊</button>
+        <button type="button" class="icon-btn">📎</button>
+        <input type="text" id="message-input" placeholder="Type a message" autocomplete="off" required>
+        <button type="submit" class="icon-btn">➤</button>
       </form>
     </main>
 
-    <!-- Video Call Overlay -->
-    <div id="call-overlay" class="overlay glass-panel" style="display: none;">
+    <!-- VIDEO CALL OVERLAY -->
+    <div id="call-overlay" class="overlay" style="display: none;">
+      <div class="call-header">
+        <h3 id="call-overlay-name">Calling User...</h3>
+        <p id="call-status">Connecting...</p>
+      </div>
       <div class="video-container">
         <video id="remote-video" autoplay playsinline></video>
         <video id="local-video" autoplay muted playsinline></video>
       </div>
       <div class="call-controls">
-        <h3 id="call-status">Calling...</h3>
-        <button id="end-call-btn" class="btn-danger">End Call</button>
+        <button id="end-call-btn" class="call-btn end" title="End Call">📵</button>
       </div>
     </div>
     
-    <!-- Incoming Call Modal -->
-    <div id="incoming-call-modal" class="modal glass-panel" style="display: none;">
-      <h3 id="caller-name">Incoming call from...</h3>
-      <div class="modal-actions">
-        <button id="accept-call-btn" class="btn-success">Accept</button>
-        <button id="reject-call-btn" class="btn-danger">Decline</button>
+    <!-- INCOMING CALL MODAL -->
+    <div id="incoming-call-modal" class="modal-overlay" style="display: none;">
+      <div class="call-modal">
+        <div class="call-modal-avatar">👤</div>
+        <h3 id="caller-name">User</h3>
+        <p>WhatsApp Video Call</p>
+        <div class="call-modal-actions">
+          <button id="reject-call-btn" class="call-btn end">📵</button>
+          <button id="accept-call-btn" class="call-btn accept">📞</button>
+        </div>
       </div>
     </div>
   </div>
 
   <script src="/socket.io/socket.io.js"></script>
-  <!-- Simple-peer is a lightweight wrapper for WebRTC -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/simple-peer/9.11.1/simplepeer.min.js"></script>
   <script src="/js/main.js"></script>
 </body>

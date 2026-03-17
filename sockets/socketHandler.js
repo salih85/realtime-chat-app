@@ -9,6 +9,12 @@ module.exports = (io) => {
 
     // Register user
     socket.on('register', (userId) => {
+      // Clean up previous socket if user reconnects from same browser
+      const previousSocketId = onlineUsers[userId];
+      if (previousSocketId && previousSocketId !== socket.id) {
+        delete users[previousSocketId];
+      }
+      
       users[socket.id] = userId;
       onlineUsers[userId] = socket.id;
       io.emit('onlineUsers', Object.keys(onlineUsers));

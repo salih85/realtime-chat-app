@@ -183,7 +183,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const res = await fetch('/api/chat/users');
       const users = await res.json();
       
-      window.cachedUsers = users; // Cache for rerender
+      window.cachedUsers = users; 
       renderUsersList();
     } catch (err) {
       console.error("Failed fetching users", err);
@@ -199,8 +199,13 @@ document.addEventListener('DOMContentLoaded', () => {
       const isOnline = onlineUsersMap.includes(user._id);
       
       li.innerHTML = `
-        <div class="status-dot ${isOnline ? 'online' : ''}"></div>
-        <span>${user.username}</span>
+        <div class="user-contact-inner">
+          <div class="profile-avatar">👤</div>
+          <div class="user-contact-info">
+            <span class="user-contact-name">${user.username}</span>
+            <span class="status-indicator ${isOnline ? 'online' : ''}">${isOnline ? 'online' : 'offline'}</span>
+          </div>
+        </div>
       `;
       
       if (selectedUser && selectedUser._id === user._id) {
@@ -216,7 +221,12 @@ document.addEventListener('DOMContentLoaded', () => {
     selectedUser = user;
     renderUsersList();
     
-    chattingWith.textContent = `Chatting with ${user.username}`;
+    document.getElementById('chat-header-info').style.visibility = 'visible';
+    chattingWith.textContent = user.username;
+    
+    const isOnline = onlineUsersMap.includes(user._id);
+    document.getElementById('chatting-status').textContent = isOnline ? 'online' : 'offline';
+    
     messageForm.style.display = 'flex';
     callActions.style.display = 'flex';
     
@@ -228,7 +238,7 @@ document.addEventListener('DOMContentLoaded', () => {
       messagesContainer.innerHTML = '';
       messages.forEach(msg => {
         const type = msg.sender === currentUser._id ? 'sent' : 'received';
-        appendMessage(msg.text, type);
+        appendMessage(msg.text, type, new Date(msg.createdAt));
       });
       scrollToBottom();
     } catch (err) {
@@ -249,16 +259,22 @@ document.addEventListener('DOMContentLoaded', () => {
     };
     
     socket.emit('sendMessage', msgData);
-    appendMessage(text, 'sent');
+    appendMessage(text, 'sent', new Date());
     scrollToBottom();
     
     messageInput.value = '';
   });
 
-  function appendMessage(text, type) {
+  function appendMessage(text, type, dateObj = new Date()) {
     const div = document.createElement('div');
     div.classList.add('message', type);
-    div.textContent = text;
+    
+    const timeString = dateObj.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    
+    div.innerHTML = `
+      ${text}
+      <span class="message-time">${timeString}</span>
+    `;
     messagesContainer.appendChild(div);
   }
 
@@ -279,9 +295,12 @@ document.addEventListener('DOMContentLoaded', () => {
     try {
       localStream = await navigator.mediaDevices.getUserMedia({ video: videoEnabled, audio: true });
       localVideo.srcObject = localStream;
+      localVideo.style.display = videoEnabled ? 'block' : 'none';
+      remoteVideo.style.display = videoEnabled ? 'block' : 'none';
       
+      document.getElementById('call-overlay-name').textContent = `Calling ${selectedUser.username}`;
       callOverlay.style.display = 'flex';
-      callStatus.textContent = "Calling...";
+      callStatus.textContent = "Connecting...";
       
       peer = new SimplePeer({
         initiator: true,
@@ -300,6 +319,10 @@ document.addEventListener('DOMContentLoaded', () => {
       
       peer.on('stream', stream => {
         remoteVideo.srcObject = stream;
+      });
+      
+      peer.on('connect', () => {
+         callStatus.textContent = "Connected";
       });
       
       peer.on('close', () => endCallCleanup());
@@ -321,9 +344,14 @@ document.addEventListener('DOMContentLoaded', () => {
          navigator.mediaDevices.getUserMedia({ video: false, audio: true })
       );
       
+      const hasVideo = localStream.getVideoTracks().length > 0;
       localVideo.srcObject = localStream;
+      localVideo.style.display = hasVideo ? 'block' : 'none';
+      remoteVideo.style.display = hasVideo ? 'block' : 'none';
+      
+      document.getElementById('call-overlay-name').textContent = incomingCallData.name;
       callOverlay.style.display = 'flex';
-      callStatus.textContent = "Connected";
+      callStatus.textContent = "Connecting...";
       
       peer = new SimplePeer({
         initiator: false,
@@ -339,6 +367,10 @@ document.addEventListener('DOMContentLoaded', () => {
         remoteVideo.srcObject = stream;
       });
       
+      peer.on('connect', () => {
+         callStatus.textContent = "Connected";
+      });
+      
       peer.on('close', () => endCallCleanup());
       
       peer.signal(incomingCallData.signal);
@@ -350,7 +382,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
   rejectCallBtn.addEventListener('click', () => {
     incomingCallModal.style.display = 'none';
-    // Optionally emit rejection
     socket.emit('endCall', { to: incomingCallData.from });
     incomingCallData = null;
   });
@@ -374,5 +405,6 @@ document.addEventListener('DOMContentLoaded', () => {
       localStream = null;
     }
     incomingCallData = null;
+    callStatus.textContent = "Call Ended";
   }
 });
