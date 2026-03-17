@@ -144,8 +144,11 @@ document.addEventListener('DOMContentLoaded', () => {
   function initSocket() {
     socket = io();
     
+    // Emit register unconditionally (Socket.io buffers this until connected)
+    socket.emit('register', currentUser._id);
+    
     socket.on('connect', () => {
-      // Vital for reconnects if server restarts
+      // Vital for reconnects if server restarts, ensuring socket id updates
       socket.emit('register', currentUser._id);
     });
     
