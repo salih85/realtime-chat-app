@@ -37,8 +37,27 @@ module.exports = (io) => {
         if (receiverSocketId) {
           io.to(receiverSocketId).emit('receiveMessage', message);
         }
+        // Echo back to sender to confirm save and provide DB ID
+        socket.emit('receiveMessage', message);
       } catch (err) {
         console.error('Error saving message', err);
+      }
+    });
+
+    // Handle delivery/read receipts
+    socket.on('messageDelivered', (data) => {
+      const { senderId, messageId } = data;
+      const senderSocketId = onlineUsers[senderId];
+      if (senderSocketId) {
+        io.to(senderSocketId).emit('messageStatusUpdate', { messageId, status: 'delivered' });
+      }
+    });
+
+    socket.on('messageRead', (data) => {
+      const { senderId, messageId } = data;
+      const senderSocketId = onlineUsers[senderId];
+      if (senderSocketId) {
+        io.to(senderSocketId).emit('messageStatusUpdate', { messageId, status: 'read' });
       }
     });
 

@@ -22,6 +22,8 @@ document.addEventListener('DOMContentLoaded', () => {
   const callActions = document.getElementById('call-actions');
   const audioCallBtn = document.getElementById('audio-call-btn');
   const videoCallBtn = document.getElementById('video-call-btn');
+  const backBtn = document.getElementById('back-btn');
+  const settingsBtn = document.getElementById('settings-btn');
   
   // Call Elements
   const callOverlay = document.getElementById('call-overlay');
@@ -105,13 +107,23 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   logoutBtn.addEventListener('click', async () => {
-    await fetch('/api/auth/logout', { method: 'POST' });
-    currentUser = null;
-    if (socket) socket.disconnect();
-    
-    authContainer.style.display = 'block';
-    appContainer.style.display = 'none';
-    localStorage.removeItem('user');
+    if (confirm('Are you sure you want to logout?')) {
+      await fetch('/api/auth/logout', { method: 'POST' });
+      currentUser = null;
+      if (socket) socket.disconnect();
+      
+      authContainer.style.display = 'block';
+      appContainer.style.display = 'none';
+      localStorage.removeItem('user');
+    }
+  });
+
+  settingsBtn.addEventListener('click', () => {
+    alert('Settings: ' + currentUser.username + '\nEmail: ' + currentUser.email);
+  });
+
+  backBtn.addEventListener('click', () => {
+    appContainer.classList.remove('show-chat');
   });
 
   // === Auth Helpers ===
@@ -158,13 +170,54 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     
     socket.on('receiveMessage', (message) => {
+      const isEcho = String(message.sender) === String(currentUser._id);
+      
+      if (isEcho) {
+        // Find the temp message and update its ID
+        const tempMsg = document.querySelector('[data-id^="temp-"]');
+        if (tempMsg) {
+          tempMsg.setAttribute('data-id', message._id);
+          // Check if receiver is online for immediate double-tick
+          const isOnline = onlineUsersMap.includes(message.receiver);
+          if (isOnline) {
+            const tickSpan = tempMsg.querySelector('.message-status');
+            if (tickSpan) {
+              tickSpan.innerHTML = '✓✓';
+              tickSpan.classList.add('delivered');
+            }
+          }
+        }
+        return;
+      }
+
       // Must cast to string just in case mongoose object ID is serialized differently
       if (selectedUser && String(message.sender) === String(selectedUser._id)) {
-        appendMessage(message.text, 'received', new Date(message.createdAt || Date.now()));
+        appendMessage(message.text, 'received', new Date(message.createdAt || Date.now()), message._id);
         scrollToBottom();
+        // Emit read receipt
+        socket.emit('messageRead', { senderId: message.sender, messageId: message._id });
       } else {
+        // Emit delivery receipt
+        socket.emit('messageDelivered', { senderId: message.sender, messageId: message._id });
         // Refresh users list in case of new messages from others
         fetchUsers();
+      }
+    });
+
+    socket.on('messageStatusUpdate', (data) => {
+      const { messageId, status } = data;
+      const msgDiv = document.querySelector(`[data-id="${messageId}"]`);
+      if (msgDiv) {
+        const tickSpan = msgDiv.querySelector('.message-status');
+        if (tickSpan) {
+          if (status === 'delivered') {
+            tickSpan.innerHTML = '✓✓';
+            tickSpan.classList.add('delivered');
+          } else if (status === 'read') {
+            tickSpan.innerHTML = '✓✓';
+            tickSpan.classList.add('read');
+          }
+        }
       }
     });
 
@@ -173,6 +226,7 @@ document.addEventListener('DOMContentLoaded', () => {
       console.log('Incoming call', data);
       incomingCallData = data;
       callerName.textContent = data.name;
+      document.getElementById('call-modal-type').textContent = data.videoEnabled ? 'Video Call' : 'Audio Call';
       incomingCallModal.style.display = 'flex'; // Flex to center the WhatsApp modal
     });
 
@@ -239,6 +293,7 @@ document.addEventListener('DOMContentLoaded', () => {
     
     messageForm.style.display = 'flex';
     callActions.style.display = 'flex';
+    appContainer.classList.add('show-chat');
     
     // Fetch generic history
     try {
@@ -248,7 +303,7 @@ document.addEventListener('DOMContentLoaded', () => {
       messagesContainer.innerHTML = '';
       messages.forEach(msg => {
         const type = msg.sender === currentUser._id ? 'sent' : 'received';
-        appendMessage(msg.text, type, new Date(msg.createdAt));
+        appendMessage(msg.text, type, new Date(msg.createdAt), msg._id);
       });
       scrollToBottom();
     } catch (err) {
@@ -269,21 +324,32 @@ document.addEventListener('DOMContentLoaded', () => {
     };
     
     socket.emit('sendMessage', msgData);
-    appendMessage(text, 'sent', new Date());
+    // Note: We don't have the message ID yet, but for simplicity we append it.
+    // In a real app, the server would return the created message with its ID.
+    // For now, we'll wait for the receiveMessage or a separate acknowledgement if we want perfect ticks.
+    appendMessage(text, 'sent', new Date(), 'temp-' + Date.now());
     scrollToBottom();
     
     messageInput.value = '';
   });
 
-  function appendMessage(text, type, dateObj = new Date()) {
+  function appendMessage(text, type, dateObj = new Date(), messageId = null) {
     const div = document.createElement('div');
     div.classList.add('message', type);
+    if (messageId) div.setAttribute('data-id', messageId);
     
     const timeString = dateObj.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
     
+    const statusHtml = type === 'sent' ? `
+      <span class="message-status sent">✓</span>
+    ` : '';
+
     div.innerHTML = `
       ${text}
-      <span class="message-time">${timeString}</span>
+      <div class="message-time">
+        ${timeString}
+        ${statusHtml}
+      </div>
     `;
     messagesContainer.appendChild(div);
   }
@@ -323,7 +389,8 @@ document.addEventListener('DOMContentLoaded', () => {
           userToCall: selectedUser._id,
           signalData: data,
           from: currentUser._id,
-          name: currentUser.username
+          name: currentUser.username,
+          videoEnabled: videoEnabled
         });
       });
       
@@ -345,12 +412,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Incoming Call Logic
   acceptCallBtn.addEventListener('click', async () => {
+    incomingCallModal.style.display = 'none'; // Close modal immediately
     if (!incomingCallData) return;
-    incomingCallModal.style.display = 'none';
     
     try {
-      // Typically accept call asks for video based on what type of call it was, we'll try to get both initially
-      localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true }).catch(() => 
+      // Typically accept call asks for video based on what type of call it was
+      const constraints = { 
+        video: incomingCallData.videoEnabled, 
+        audio: true 
+      };
+      
+      localStream = await navigator.mediaDevices.getUserMedia(constraints).catch(() => 
          navigator.mediaDevices.getUserMedia({ video: false, audio: true })
       );
       

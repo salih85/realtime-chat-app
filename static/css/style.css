@@ -9,6 +9,8 @@
   --wa-text-muted: #667781;
   --wa-msg-sent: #dcf8c6;
   --wa-msg-received: #ffffff;
+  --wa-tick-gray: #8696a0;
+  --wa-tick-blue: #53bdeb;
   --danger-color: #ea0038;
   --success-color: #00a884;
 }
@@ -141,6 +143,8 @@ button.btn-danger { background-color: var(--danger-color); }
   flex-direction: column;
   border-right: 1px solid var(--wa-border);
   background: white;
+  z-index: 10;
+  transition: transform 0.3s ease;
 }
 
 .user-profile {
@@ -249,6 +253,8 @@ button.btn-danger { background-color: var(--danger-color); }
   flex-direction: column;
   background: var(--wa-bg-main);
   position: relative;
+  z-index: 5;
+  transition: transform 0.3s ease;
 }
 
 /* WhatsApp Background Pattern Wrapper */
@@ -325,8 +331,20 @@ button.btn-danger { background-color: var(--danger-color); }
   font-size: 0.68rem;
   color: var(--wa-text-muted);
   float: right;
-  margin: 8px 0 -4px 10px;
+  margin: 4px 0 -4px 10px;
+  display: flex;
+  align-items: center;
+  gap: 3px;
 }
+
+.message-status {
+  font-size: 14px;
+  line-height: 1;
+}
+
+.message-status.sent { color: var(--wa-tick-gray); }
+.message-status.delivered { color: var(--wa-tick-gray); }
+.message-status.read { color: var(--wa-tick-blue); }
 
 #message-form {
   background: var(--wa-bg-panel);
@@ -479,3 +497,40 @@ button.btn-danger { background-color: var(--danger-color); }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: rgba(11,20,26,.2); border-radius: 3px; }
 ::-webkit-scrollbar-thumb:hover { background: rgba(11,20,26,.3); }
+
+/* Mobile Responsiveness */
+.mobile-only { display: none; }
+
+@media (max-width: 768px) {
+  .sidebar {
+    width: 100%;
+    max-width: none;
+    position: absolute;
+    height: 100%;
+  }
+  
+  .chat-area {
+    width: 100%;
+    position: absolute;
+    height: 100%;
+    transform: translateX(100%);
+  }
+  
+  .layout-container.show-chat .sidebar {
+    transform: translateX(-100%);
+  }
+  
+  .layout-container.show-chat .chat-area {
+    transform: translateX(0);
+  }
+  
+  .mobile-only { display: block; }
+  
+  .chat-header {
+    padding: 10px 8px;
+  }
+  
+  .chat-header-info {
+    gap: 8px;
+  }
+}
