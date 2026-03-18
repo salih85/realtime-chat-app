@@ -44,10 +44,10 @@ module.exports = (io) => {
 
     // WebRTC Signaling
     socket.on('callUser', (data) => {
-      const { userToCall, signalData, from, name } = data;
+      const { userToCall, signalData, from, name, videoEnabled } = data;
       const receiverSocketId = onlineUsers[userToCall];
       if (receiverSocketId) {
-        io.to(receiverSocketId).emit('callUser', { signal: signalData, from, name });
+        io.to(receiverSocketId).emit('callUser', { signal: signalData, from, name, videoEnabled });
       }
     });
 

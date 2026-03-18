@@ -3,13 +3,13 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>WhatsApp Web</title>
+  <title>RealTime Chat</title>
   <link rel="stylesheet" href="/css/style.css">
 </head>
 <body>
   <!-- AUTHENTICATION VIEW -->
   <div id="auth-container" class="auth-wrapper">
-    <h1>WhatsApp Web</h1>
+    <h1>RealTime Chat</h1>
     <div class="auth-tabs">
       <button id="tab-login" class="active">Login</button>
       <button id="tab-register">Register</button>
@@ -39,8 +39,9 @@
           <div class="profile-avatar">👤</div>
           <h2 id="current-username">User</h2>
         </div>
-        <div>
-          <button id="logout-btn" class="icon-btn" title="Logout">⚙️</button>
+        <div style="display: flex; gap: 8px;">
+          <button id="settings-btn" class="icon-btn" title="Settings">⚙️</button>
+          <button id="logout-btn" class="icon-btn" title="Logout">🚪</button>
         </div>
       </div>
       
@@ -99,7 +100,7 @@
       <div class="call-modal">
         <div class="call-modal-avatar">👤</div>
         <h3 id="caller-name">User</h3>
-        <p>WhatsApp Video Call</p>
+        <p id="call-modal-type">Video Call</p>
         <div class="call-modal-actions">
           <button id="reject-call-btn" class="call-btn end">📵</button>
           <button id="accept-call-btn" class="call-btn accept">📞</button>
