@@ -188,6 +188,10 @@ button.btn-danger { background-color: var(--danger-color); }
   cursor: pointer;
   padding: 8px;
   border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s;
 }
 .icon-btn:hover { background: rgba(0,0,0,0.05); }
 
@@ -529,15 +533,15 @@ button.btn-danger { background-color: var(--danger-color); }
   height: 108px;
   padding: 0 20px;
   display: flex;
-  align-items: flex-end;
-  padding-bottom: 15px;
+  align-items: center;
   gap: 20px;
+  padding-top: 30px;
 }
 
 .settings-header h3 {
   font-size: 1.2rem;
   font-weight: 500;
-  margin-bottom: 2px;
+  margin-top: 5px;
 }
 
 .settings-header .icon-btn {
@@ -672,8 +676,53 @@ button.btn-danger { background-color: var(--danger-color); }
 }
 
 @media (max-width: 768px) {
+  .sidebar {
+    width: 100%;
+    max-width: none;
+    position: absolute;
+    height: 100%;
+    z-index: 10;
+    transition: transform 0.3s ease;
+  }
+  
+  .chat-area {
+    width: 100%;
+    position: absolute;
+    height: 100%;
+    transform: translateX(100%);
+    z-index: 20;
+    transition: transform 0.3s ease;
+  }
+  
+  .layout-container.show-chat .sidebar {
+    transform: translateX(-100%);
+  }
+  
+  .layout-container.show-chat .chat-area {
+    transform: translateX(0);
+  }
+  
+  .mobile-only { display: block; }
+  
+  .chat-header {
+    padding: 10px 8px;
+  }
+  
+  .chat-header-info {
+    gap: 8px;
+  }
+
   .settings-sidebar {
     width: 100%;
     max-width: none;
+    z-index: 300;
+  }
+
+  /* Fix Bottom Overflow on Mobile */
+  .layout-container {
+    height: 100vh;
+    height: -webkit-fill-available;
+    border-radius: 0;
+    top: 0;
   }
 }
