@@ -98,8 +98,6 @@
         <button id="end-call-btn" class="call-btn end" title="End Call">📵</button>
       </div>
     </div>
-    
-    
     <!-- INCOMING CALL MODAL -->
     <div id="incoming-call-modal" class="modal-overlay" style="display: none;">
       <div class="call-modal">
@@ -109,6 +107,44 @@
         <div class="call-modal-actions">
           <button id="reject-call-btn" class="call-btn end">📵</button>
           <button id="accept-call-btn" class="call-btn accept">📞</button>
+        </div>
+      </div>
+    </div>
+    
+    <!-- SETTINGS PANEL (Stengess) -->
+    <div id="settings-panel" class="settings-sidebar">
+      <header class="settings-header">
+        <button id="close-settings" class="icon-btn">⬅️</button>
+        <h3>Settings</h3>
+      </header>
+      <div class="settings-content">
+        <div class="settings-profile">
+          <div class="profile-avatar large">👤</div>
+          <div class="settings-user-info">
+            <h2 id="settings-username">User</h2>
+            <p id="settings-email">email@example.com</p>
+          </div>
+        </div>
+        <div class="settings-options">
+          <div class="settings-item" id="logout-trigger">
+            <span class="icon red">🚪</span>
+            <div class="settings-item-text">
+              <span class="title red">Log out</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- LOGOUT CONFIRMATION MODAL (WhatsApp Style) -->
+    <div id="logout-confirm-modal" class="modal-overlay" style="display: none;">
+      <div class="whatsapp-modal">
+        <div class="modal-body">
+          <p>Log out from RealTime Chat?</p>
+        </div>
+        <div class="modal-footer">
+          <button id="cancel-logout" class="modal-btn">Cancel</button>
+          <button id="confirm-logout" class="modal-btn primary">Log out</button>
         </div>
       </div>
     </div>

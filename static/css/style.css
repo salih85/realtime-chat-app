@@ -501,36 +501,179 @@ button.btn-danger { background-color: var(--danger-color); }
 /* Mobile Responsiveness */
 .mobile-only { display: none; }
 
+/* Settings Panel (Stengess) */
+.settings-sidebar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 30%;
+  min-width: 300px;
+  max-width: 415px;
+  height: 100%;
+  background: white;
+  z-index: 200;
+  transform: translateX(-100%);
+  transition: transform 0.3s cubic-bezier(0.1, 0.7, 0.1, 1);
+  display: flex;
+  flex-direction: column;
+  box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+}
+
+.settings-sidebar.active {
+  transform: translateX(0);
+}
+
+.settings-header {
+  background: var(--wa-teal);
+  color: white;
+  height: 108px;
+  padding: 0 20px;
+  display: flex;
+  align-items: flex-end;
+  padding-bottom: 15px;
+  gap: 20px;
+}
+
+.settings-header h3 {
+  font-size: 1.2rem;
+  font-weight: 500;
+  margin-bottom: 2px;
+}
+
+.settings-header .icon-btn {
+  color: white;
+  padding: 0;
+}
+
+.settings-content {
+  flex: 1;
+  background: #f0f2f5;
+  overflow-y: auto;
+}
+
+.settings-profile {
+  background: white;
+  padding: 28px 30px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  margin-bottom: 10px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+}
+
+.profile-avatar.large {
+  width: 200px;
+  height: 200px;
+  font-size: 6rem;
+  margin-bottom: 20px;
+}
+
+.settings-user-info h2 {
+  font-size: 1.1rem;
+  font-weight: 400;
+  color: var(--wa-text-primary);
+  margin-bottom: 5px;
+}
+
+.settings-user-info p {
+  color: var(--wa-text-muted);
+  font-size: 0.9rem;
+}
+
+.settings-options {
+  background: white;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+}
+
+.settings-item {
+  display: flex;
+  align-items: center;
+  padding: 15px 30px;
+  cursor: pointer;
+  transition: background 0.2s;
+  gap: 20px;
+}
+
+.settings-item:hover {
+  background: #f5f6f6;
+}
+
+.settings-item .icon {
+  font-size: 1.3rem;
+}
+
+.settings-item-text .title {
+  font-size: 1rem;
+  color: var(--wa-text-primary);
+}
+
+.settings-item-text .title.red {
+  color: var(--danger-color);
+}
+
+/* WhatsApp-style Modal */
+.whatsapp-modal {
+  background: white;
+  width: 100%;
+  max-width: 500px;
+  border-radius: 3px;
+  padding: 32px 40px;
+  box-shadow: 0 24px 38px 3px rgba(0,0,0,0.14), 0 9px 46px 8px rgba(0,0,0,0.12), 0 11px 15px -7px rgba(0,0,0,0.2);
+  transform: scale(1.1);
+  transition: transform 0.2s;
+}
+
+.modal-overlay[style*="display: flex"] .whatsapp-modal {
+  transform: scale(1);
+}
+
+.modal-body p {
+  font-size: 1.1rem;
+  color: var(--wa-text-primary);
+  margin-bottom: 30px;
+  line-height: 1.4;
+}
+
+.modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.modal-btn {
+  padding: 10px 24px;
+  border-radius: 4px;
+  border: 1px solid var(--wa-border);
+  background: white;
+  color: var(--wa-teal);
+  font-weight: 500;
+  text-transform: uppercase;
+  font-size: 0.85rem;
+  cursor: pointer;
+  letter-spacing: 0.5px;
+  transition: background 0.2s, box-shadow 0.2s;
+}
+
+.modal-btn:hover {
+  background: #f1f8f6;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.modal-btn.primary {
+  background: var(--wa-teal);
+  color: white;
+  border: none;
+}
+
+.modal-btn.primary:hover {
+  background: var(--wa-teal-light);
+  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+
 @media (max-width: 768px) {
-  .sidebar {
+  .settings-sidebar {
     width: 100%;
     max-width: none;
-    position: absolute;
-    height: 100%;
-  }
-  
-  .chat-area {
-    width: 100%;
-    position: absolute;
-    height: 100%;
-    transform: translateX(100%);
-  }
-  
-  .layout-container.show-chat .sidebar {
-    transform: translateX(-100%);
-  }
-  
-  .layout-container.show-chat .chat-area {
-    transform: translateX(0);
-  }
-  
-  .mobile-only { display: block; }
-  
-  .chat-header {
-    padding: 10px 8px;
-  }
-  
-  .chat-header-info {
-    gap: 8px;
   }
 }

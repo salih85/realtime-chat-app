@@ -36,6 +36,16 @@ document.addEventListener('DOMContentLoaded', () => {
   const acceptCallBtn = document.getElementById('accept-call-btn');
   const rejectCallBtn = document.getElementById('reject-call-btn');
 
+  // New Settings & Logout Elements
+  const settingsPanel = document.getElementById('settings-panel');
+  const closeSettingsBtn = document.getElementById('close-settings');
+  const logoutConfirmModal = document.getElementById('logout-confirm-modal');
+  const logoutTrigger = document.getElementById('logout-trigger');
+  const cancelLogoutBtn = document.getElementById('cancel-logout');
+  const confirmLogoutBtn = document.getElementById('confirm-logout');
+  const settingsUsername = document.getElementById('settings-username');
+  const settingsEmail = document.getElementById('settings-email');
+
   // === State ===
   let currentUser = null;
   let selectedUser = null;
@@ -106,20 +116,36 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  logoutBtn.addEventListener('click', async () => {
-    if (confirm('Are you sure you want to logout?')) {
-      await fetch('/api/auth/logout', { method: 'POST' });
-      currentUser = null;
-      if (socket) socket.disconnect();
-      
-      authContainer.style.display = 'block';
-      appContainer.style.display = 'none';
-      localStorage.removeItem('user');
-    }
+  logoutBtn.addEventListener('click', () => {
+    logoutConfirmModal.style.display = 'flex';
+  });
+
+  logoutTrigger.addEventListener('click', () => {
+    logoutConfirmModal.style.display = 'flex';
+  });
+
+  cancelLogoutBtn.addEventListener('click', () => {
+    logoutConfirmModal.style.display = 'none';
+  });
+
+  confirmLogoutBtn.addEventListener('click', async () => {
+    logoutConfirmModal.style.display = 'none';
+    await fetch('/api/auth/logout', { method: 'POST' });
+    currentUser = null;
+    if (socket) socket.disconnect();
+    
+    authContainer.style.display = 'block';
+    appContainer.style.display = 'none';
+    settingsPanel.classList.remove('active');
+    localStorage.removeItem('user');
   });
 
   settingsBtn.addEventListener('click', () => {
-    alert('Settings: ' + currentUser.username + '\nEmail: ' + currentUser.email);
+    settingsPanel.classList.add('active');
+  });
+
+  closeSettingsBtn.addEventListener('click', () => {
+    settingsPanel.classList.remove('active');
   });
 
   backBtn.addEventListener('click', () => {
@@ -147,6 +173,10 @@ document.addEventListener('DOMContentLoaded', () => {
     authContainer.style.display = 'none';
     appContainer.style.display = 'flex';
     currentUsername.textContent = currentUser.username;
+    
+    // Update settings panel info
+    settingsUsername.textContent = currentUser.username;
+    settingsEmail.textContent = currentUser.email;
     
     initSocket();
     fetchUsers();
