@@ -250,7 +250,6 @@ button.btn-danger { background-color: var(--danger-color); }
 .status-indicator.online { color: var(--wa-teal-light); }
 
 
-/* Chat Area */
 .chat-area {
   flex: 1;
   display: flex;
@@ -261,7 +260,7 @@ button.btn-danger { background-color: var(--danger-color); }
   transition: transform 0.3s ease;
 }
 
-/* WhatsApp Background Pattern Wrapper */
+
 .chat-area::before {
   content: "";
   position: absolute;
@@ -377,7 +376,6 @@ button.btn-danger { background-color: var(--danger-color); }
   justify-content: center;
 }
 
-/* WhatsApp Styling Call Overlays & Modals */
 .overlay {
   position: absolute;
   top: 0; left: 0; right: 0; bottom: 0;
