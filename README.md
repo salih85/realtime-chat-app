@@ -1,3 +1,4 @@
+
 # Real-time Chat App
 
 A modern, responsive real-time chat application with integrated audio and video calling features. This project leverages the power of Node.js, Express, Socket.io, and WebRTC to provide a seamless communication experience.
